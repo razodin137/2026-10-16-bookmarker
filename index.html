@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmarker — Visual Tab &amp; Bookmark Vault</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar" aria-label="Bookmark navigation">
+      <div class="sidebar-header">
+        <a href="#" class="brand" id="resetFiltersBrand">
+          <span class="brand-logo" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </span>
+          <div class="brand-text">
+            <span class="brand-name">Bookmarker</span>
+            <span class="brand-subtitle">Visual Tab Vault</span>
+          </div>
+        </a>
+        <button class="icon-btn mobile-close-btn" id="closeSidebarBtn" aria-label="Close sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-cta">
+        <button class="btn-primary w-full" id="openDumpModalBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Dump Tabs / Add Link</span>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Library</div>
+          <ul class="nav-list" id="libraryNavList">
+            <li>
+              <button class="nav-item active" data-collection="all">
+                <span class="nav-item-left">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                  </svg>
+                  <span>All Bookmarks</span>
+                </span>
+                <span class="nav-badge" id="count-all">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item" data-collection="inbox">
+                <span class="nav-item-left">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                  </svg>
+                  <span>Tab Dump Inbox</span>
+                </span>
+                <span class="nav-badge badge-accent" id="count-inbox">0</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item" data-collection="favorites">
+                <span class="nav-item-left">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  <span>Starred &amp; Pinned</span>
+                </span>
+                <span class="nav-badge" id="count-favorites">0</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Categories</div>
+          <ul class="nav-list" id="categoryNavList">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-header">
+            <span class="nav-section-title">Filter by Tag</span>
+            <button class="text-btn hidden" id="clearTagBtn">Clear</button>
+          </div>
+          <div class="sidebar-tags" id="sidebarTagList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="storage-summary">
+          <div class="storage-text">
+            <span class="storage-label">Session Tab Dump</span>
+            <span class="storage-count" id="sessionStatusText">12 links indexed</span>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-bar-fill" style="width: 68%"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Backdrop for mobile sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Sticky Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn mobile-menu-btn" id="openSidebarBtn" aria-label="Open menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+          <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="search"
+              id="searchInput"
+              class="search-input"
+              placeholder="Search titles, inside snippets, domains, or #tags..."
+              autocomplete="off"
+              aria-label="Search bookmarks"
+            />
+            <kbd class="search-kbd" id="searchKbd">/</kbd>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Sort Select -->
+          <div class="control-group">
+            <label for="sortSelect" class="sr-only">Sort bookmarks</label>
+            <select id="sortSelect" class="select-control">
+              <option value="newest">Newest Saved</option>
+              <option value="oldest">Oldest Saved</option>
+              <option value="domain">Domain (A–Z)</option>
+              <option value="title">Title (A–Z)</option>
+            </select>
+          </div>
+
+          <!-- View Toggle: Grid vs Compact List -->
+          <div class="view-toggle" role="group" aria-label="Layout view">
+            <button class="view-btn active" id="gridViewBtn" data-view="grid" title="Visual Card Grid" aria-label="Visual Card Grid">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+              <span>Grid</span>
+            </button>
+            <button class="view-btn" id="listViewBtn" data-view="list" title="Compact List View" aria-label="Compact List View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              <span>List</span>
+            </button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">
+            <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Feed Content -->
+      <main class="content-area">
+        <!-- Context Header & Active Filters -->
+        <section class="feed-header">
+          <div class="feed-title-row">
+            <div>
+              <div class="eyebrow" id="activeCollectionEyebrow">LIBRARY OVERVIEW</div>
+              <h1 class="feed-title" id="activeViewTitle">All Bookmarks</h1>
+              <p class="feed-subtitle" id="activeViewSubtitle">
+                Visual snapshots, key takeaways, and extracted context from your saved tabs and links.
+              </p>
+            </div>
+            <div class="feed-stats">
+              <div class="stat-pill">
+                <span class="stat-value" id="visibleCountStat">0</span>
+                <span class="stat-label">Showing</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-value" id="unreadCountStat">0</span>
+                <span class="stat-label">In Tab Inbox</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active filter chips bar -->
+          <div class="active-filters-bar hidden" id="activeFiltersBar">
+            <span class="filters-label">Filtered by:</span>
+            <div class="active-filter-chips" id="activeFilterChips"></div>
+            <button class="text-btn" id="resetAllFiltersBtn">Reset all</button>
+          </div>
+        </section>
+
+        <!-- Bookmarks Showcase Grid / List -->
+        <section id="bookmarksContainer" class="bookmarks-grid" aria-live="polite">
+          <!-- Populated dynamically via app.js -->
+        </section>
+
+        <!-- Empty State -->
+        <section id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h2 class="empty-title">No matching bookmarks found</h2>
+          <p class="empty-description">
+            Try clearing your search query or switching to a different category or tag filter.
+          </p>
+          <button class="btn-secondary" id="emptyResetBtn">Reset Filters</button>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Dump Browser Tabs / Add Bookmark -->
+  <div class="modal-overlay hidden" id="dumpModal" role="dialog" aria-modal="true" aria-labelledby="dumpModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="dumpModalTitle">Dump Tabs or Save a Link</h2>
+          <p class="modal-subtitle">Paste a single URL with notes or dump multiple open browser tabs at once.</p>
+        </div>
+        <button class="icon-btn" id="closeDumpModalBtn" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="addBookmarkForm" class="modal-body">
+        <div class="form-group">
+          <label for="bmUrl">URL (or multiple URLs, one per line)</label>
+          <textarea
+            id="bmUrl"
+            rows="3"
+            required
+            placeholder="https://example.com/article-worth-reading&#10;https://github.com/org/project"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bmTitle">Title <span class="optional-hint">(optional for multi-tab dump)</span></label>
+            <input type="text" id="bmTitle" placeholder="e.g., How SQLite Scales to Millions of Queries" />
+          </div>
+          <div class="form-group">
+            <label for="bmCategory">Category</label>
+            <select id="bmCategory">
+              <option value="Engineering & Systems">Engineering &amp; Systems</option>
+              <option value="Design & UI">Design &amp; UI</option>
+              <option value="AI & Research">AI &amp; Research</option>
+              <option value="Tools & Repos">Tools &amp; Repos</option>
+              <option value="Essays & Reading">Essays &amp; Reading</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bmSummary">What's inside? <span class="optional-hint">(Summary or key takeaway)</span></label>
+          <textarea
+            id="bmSummary"
+            rows="2"
+            placeholder="Why did you save this tab? What key diagram, benchmark, or idea is inside?"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bmSnippet">Highlighted Snippet / Key Detail <span class="optional-hint">(optional)</span></label>
+            <input type="text" id="bmSnippet" placeholder="e.g., WAL mode + mmap reduces read latency by 64%" />
+          </div>
+          <div class="form-group">
+            <label for="bmTags">Tags <span class="optional-hint">(comma separated)</span></label>
+            <input type="text" id="bmTags" placeholder="architecture, database, performance" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelDumpModalBtn">Cancel</button>
+          <button type="submit" class="btn-primary">Save to Vault</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
